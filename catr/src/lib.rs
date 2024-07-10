@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, error::Error};
+use std::error::Error;
 
 use clap::{App, Arg};
 
@@ -12,8 +12,8 @@ pub struct Config {
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
-pub fn run() -> MyResult<()> {
-  println!("Hello world!");
+pub fn run(config: Config) -> MyResult<()> {
+  dbg!(config);
   Ok(())
 }
 
@@ -26,26 +26,29 @@ pub fn get_args() -> MyResult<Config>{
     .arg(
       Arg::with_name("files")
       .value_name("FILE")
-      .help("Input files")
-      .required(true)
-      .min_values(1),
+      .help("Input file(s)")
+      .multiple(true)
+      .default_value("-") // echo "xxx" | cat　などで標準出力を受け取る時に使う  
     )
     .arg(
       Arg::with_name("number_lines")
       .short("n")
-      .help("Print number lines")
+      .long("number")
+      .help("Number lines")
       .takes_value(false)
+      .conflicts_with("number_nonblank") // -n -b を同時指定できない
     )
     .arg(
-      Arg::with_name("number_nonblank_lines")
+      Arg::with_name("number_nonblank")
       .short("b")
-      .help("Print number nonblank lines")
+      .long("number-nonblank")
+      .help("Number non-blank lines")
       .takes_value(false)
     )
     .get_matches();
   let files = matches.values_of_lossy("files").unwrap();
   let number_lines = matches.is_present("number_lines");
-  let number_nonblank_lines = matches.is_present("number_nonblank_lines");
+  let number_nonblank_lines = matches.is_present("number_nonblank");
 
   Ok(Config{
     files,
@@ -54,3 +57,4 @@ pub fn get_args() -> MyResult<Config>{
   })
 
 }
+
