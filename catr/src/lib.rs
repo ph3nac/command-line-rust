@@ -1,6 +1,7 @@
-use std::error::Error;
-
 use clap::{App, Arg};
+use std::error::Error;
+use std::fs::File;
+use std::io::{self,BufRead,BufReader};
 
 // 構造体の定義はuse分の後に書くのが一般的
 #[derive(Debug)] // deriveマクロを利用して構造体を表示できるようにする
@@ -13,7 +14,9 @@ pub struct Config {
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
 pub fn run(config: Config) -> MyResult<()> {
-  dbg!(config);
+  for filename in config.files {
+    println!("{}",filename);
+  }
   Ok(())
 }
 
