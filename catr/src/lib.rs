@@ -1,4 +1,5 @@
-use clap::{App, Arg};
+use clap::Arg;
+use clap::App;
 use std::error::Error;
 use std::fs::File;
 use std::io::{self,BufRead,BufReader};
@@ -15,7 +16,10 @@ type MyResult<T> = Result<T, Box<dyn Error>>;
 
 pub fn run(config: Config) -> MyResult<()> {
   for filename in config.files {
-    println!("{}",filename);
+    match open(&filename) {
+      Err(err) => eprintln!("Failed to open {}: {}", filename, err),
+      Ok(_) => println!("Opened {}", filename),
+    }
   }
   Ok(())
 }
@@ -59,5 +63,13 @@ pub fn get_args() -> MyResult<Config>{
     number_nonblank_lines,
   })
 
+}
+
+// dyn BufReadの大きさが不定なためBoxでヒープに保持する
+fn open(filename: &str) -> MyResult<Box<dyn BufRead>>{
+  match filename {
+      "-" => Ok(Box::new(BufReader::new(io::stdin()))),
+      _ => Ok(Box::new(BufReader::new(File::open(filename)?))), // 読み込めなかった場合はエラーを伝播させる
+  } 
 }
 
