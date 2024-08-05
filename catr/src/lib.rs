@@ -19,11 +19,9 @@ pub fn run(config: Config) -> MyResult<()> {
         match open(&filename) {
             Err(err) => eprintln!("Failed to open {}: {}", filename, err),
             Ok(file) => {
-                let mut line_num = 0;
-                for line_result in file.lines() {
-                    // 行の読み込み中にエラーが発生した場合，Result<Error>を返す
+                // Enumurateを返すことでindexとlineのタプルを取得できる
+                for (line_num, line_result) in file.lines().enumerate() {
                     let line = line_result?;
-                    line_num += 1;
                     if config.number_lines {
                         println!("{:>6}\t{}", line_num, line);
                     } else {
