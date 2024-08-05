@@ -19,11 +19,20 @@ pub fn run(config: Config) -> MyResult<()> {
         match open(&filename) {
             Err(err) => eprintln!("Failed to open {}: {}", filename, err),
             Ok(file) => {
+                let mut last_num = 0;
                 // Enumurateを返すことでindexとlineのタプルを取得できる
-                for (line_num, line_result) in file.lines().enumerate() {
-                    let line = line_result?;
+                for (line_num, line) in file.lines().enumerate() {
+                    // シャードイングで変数名を再利用する Rustらしいコードらしい
+                    let line = line?;
                     if config.number_lines {
-                        println!("{:>6}\t{}", line_num, line);
+                        println!("{:>6}\t{}", line_num + 1, line);
+                    } else if config.number_nonblank_lines {
+                        if !line.is_empty() {
+                            last_num += 1;
+                            println!("{:>6}\t{}", last_num, line);
+                        } else {
+                            println!();
+                        }
                     } else {
                         println!("{}", line);
                     }
